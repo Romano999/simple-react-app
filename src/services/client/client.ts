@@ -14,7 +14,11 @@ export interface IClient {
     /**
      * @return Success
      */
-    getAllProductsEndpoint(): Promise<Product[]>;
+    all(): Promise<Product[]>;
+    /**
+     * @return Success
+     */
+    products(id: number): Promise<Product>;
 }
 
 export class Client implements IClient {
@@ -33,8 +37,8 @@ export class Client implements IClient {
     /**
      * @return Success
      */
-    getAllProductsEndpoint( cancelToken?: CancelToken | undefined): Promise<Product[]> {
-        let url_ = this.baseUrl + "/api/GetAllProductsEndpoint";
+    all( cancelToken?: CancelToken | undefined): Promise<Product[]> {
+        let url_ = this.baseUrl + "/products/all";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: AxiosRequestConfig = {
@@ -53,11 +57,11 @@ export class Client implements IClient {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processGetAllProductsEndpoint(_response);
+            return this.processAll(_response);
         });
     }
 
-    protected processGetAllProductsEndpoint(response: AxiosResponse): Promise<Product[]> {
+    protected processAll(response: AxiosResponse): Promise<Product[]> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -81,12 +85,116 @@ export class Client implements IClient {
             }
             return Promise.resolve<Product[]>(result200);
 
+        } else if (status === 404) {
+            const _responseText = response.data;
+            let result404: any = null;
+            let resultData404  = _responseText;
+            result404 = NotFoundResult.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
         return Promise.resolve<Product[]>(null as any);
     }
+
+    /**
+     * @return Success
+     */
+    products(id: number, cancelToken?: CancelToken | undefined): Promise<Product> {
+        let url_ = this.baseUrl + "/products/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "text/plain"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processProducts(_response);
+        });
+    }
+
+    protected processProducts(response: AxiosResponse): Promise<Product> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (let k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = Product.fromJS(resultData200);
+            return Promise.resolve<Product>(result200);
+
+        } else if (status === 404) {
+            const _responseText = response.data;
+            let result404: any = null;
+            let resultData404  = _responseText;
+            result404 = NotFoundResult.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<Product>(null as any);
+    }
+}
+
+export class NotFoundResult implements INotFoundResult {
+    statusCode?: number;
+
+    constructor(data?: INotFoundResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.statusCode = _data["statusCode"];
+        }
+    }
+
+    static fromJS(data: any): NotFoundResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new NotFoundResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["statusCode"] = this.statusCode;
+        return data;
+    }
+}
+
+export interface INotFoundResult {
+    statusCode?: number;
 }
 
 export class Product implements IProduct {
