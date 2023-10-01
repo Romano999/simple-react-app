@@ -18,11 +18,11 @@ export const Products = () => {
     return <span>Error: {error.message}</span>
   }
 
-  const products: Product[] = data!;
+  const products: Product[] | undefined = data;
 
   return <>
     <div className="container">
-    {products.map(product => {
+    {products?.map(product => {
         return <MediaCard key={product.id} imageUrl={product.imageUrl} title={product.name} description={product.description}  urlOnClick={`product-details/${product.id}`} />
       })}
     </div>

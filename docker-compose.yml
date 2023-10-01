@@ -1,0 +1,40 @@
+version: '1.0'
+
+networks:
+  mynetwork:
+    driver: bridge
+
+services:
+  frontend:
+    container_name: frontend
+    image: simple-react-app:latest
+    environment:
+      - REACT_APP_BASE_URL = http://localhost:80
+    networks:
+      - mynetwork
+    ports: 
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - backend
+  backend:
+    container_name: backend
+    image: simpledotnetapiapplication:latest
+    depends_on:
+      - postgres
+    networks:
+      - mynetwork
+    ports:
+      - "80:80"
+    build:
+      context: .
+      dockerfile: C:\Users\roman\Documents\Visual Studio 2022\Projects\SimpleDotnetApi\SimpleDotnetApi.Application\Dockerfile
+  postgres:
+    container_name: postgres
+    image: postgres-db-test:latest
+    ports:
+      - "5432:5432"
+    networks:
+      - mynetwork
+    
+
