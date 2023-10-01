@@ -34,7 +34,7 @@ export const MediaCard = (props: MediaCardProps) => {
       </CardContent>
       <CardActions>
         <Button>
-          <Link href={props.urlOnClick} color="text.secondary">
+          <Link href={`/${props.urlOnClick}`} color="text.secondary">
             <h4>Go to product</h4>
           </Link>
         </Button>

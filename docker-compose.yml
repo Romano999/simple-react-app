@@ -7,7 +7,7 @@ networks:
 services:
   frontend:
     container_name: frontend
-    image: simple-react-app:latest
+    image: romano2001/simple-react-app:latest
     environment:
       - REACT_APP_BASE_URL = http://localhost:80
     networks:
@@ -19,7 +19,7 @@ services:
       - backend
   backend:
     container_name: backend
-    image: simpledotnetapiapplication:latest
+    image: romano2001/simple-dotnet-api:latest
     depends_on:
       - postgres
     networks:
@@ -31,10 +31,15 @@ services:
       dockerfile: C:\Users\roman\Documents\Visual Studio 2022\Projects\SimpleDotnetApi\SimpleDotnetApi.Application\Dockerfile
   postgres:
     container_name: postgres
-    image: postgres-db-test:latest
+    image: romano2001/postgres-db-test:latest
     ports:
       - "5432:5432"
     networks:
       - mynetwork
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  pg_data:
     
 
