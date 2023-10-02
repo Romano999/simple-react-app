@@ -2,7 +2,7 @@
 FROM node:16.20.2-alpine as build
 WORKDIR /app
 
-ENV REACT_APP_BASE_URL http://localhost:80
+ENV REACT_APP_BASE_URL http://85.215.44.97:80
 RUN echo "The ENV variable value is $REACT_APP_BASE_URL"
 
 COPY package.json /app/package.json
